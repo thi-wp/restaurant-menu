@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@types/mssql": "^12.3.0",
-    "msnodesqlv8": "^5.2.0",
     "mssql": "^12.5.4",
     "next": "16.2.6",
     "react": "19.2.4",

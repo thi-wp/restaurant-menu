@@ -10,7 +10,6 @@
 
 import sql from 'mssql';
 
-const useTrustedConnection = process.env.DB_TRUSTED_CONNECTION === 'true';
 const server   = process.env.DB_SERVER   || 'localhost\\SQLEXPRESS';
 const database  = process.env.DB_NAME     || 'RestaurantManagement';
 const port      = parseInt(process.env.DB_PORT || '1433', 10);
@@ -21,25 +20,6 @@ const port      = parseInt(process.env.DB_PORT || '1433', 10);
  * Với SQL Auth, dùng driver mặc định (tedious — không cần cài thêm).
  */
 function buildConfig(): sql.config {
-  if (useTrustedConnection) {
-    // Windows Authentication — cần msnodesqlv8
-    return {
-      server,
-      database,
-      options: {
-        trustedConnection: true,
-        trustServerCertificate: true,
-        enableArithAbort: true,
-        encrypt: false,
-        instanceName: server.includes('\\') ? server.split('\\')[1] : undefined,
-      },
-      driver: 'msnodesqlv8',
-      pool: { max: 10, min: 0, idleTimeoutMillis: 30000 },
-      connectionTimeout: 15000,
-      requestTimeout: 15000,
-    } as sql.config;
-  }
-
   // SQL Server Authentication (tedious — không cần cài thêm)
   return {
     server: server.includes('\\') ? server.split('\\')[0] : server,
@@ -86,10 +66,7 @@ async function getPool(): Promise<sql.ConnectionPool> {
 
   await pool.connect();
   global._mssqlPool = pool;
-  console.log(
-    `[DB] ✓ Connected to ${server}/${database}`,
-    useTrustedConnection ? '(Windows Auth)' : '(SQL Auth)'
-  );
+  console.log(`[DB] ✓ Connected to ${server}/${database} (SQL Auth)`);
   return pool;
 }
 
